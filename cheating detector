@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset=":UTF-8">
+        <title>Online Exam Proctoring</title>
+
+        <style>
+        
+        body{
+        font-family:Arial;
+        background:#f2f2f2;
+        text-align:center;
+        }
+
+        .container{
+        margin-top:50px;
+        background:white;
+        padding:30px;
+        width:60%;
+        margin-left:auto;
+        margin-right:auto;
+        border-radius:10px;
+        box-shadow:0 0 10px gray;
+        }
+
+        #Warning{
+        color:red;
+        font-weight:bold;
+        }
+
+        button{
+        padding:10px 20px;
+        font-size:16px;
+        background:blue;
+        color:white;
+        border:none;
+        border-radius:5px;
+        cursor:pointer;
+        }
+        
+        </style>
+        </head>
+<body>
+    <div class="container">
+        <h2>Online Exam System</h2>
+        <p id="question">
+        Which of the following is an exit-controlled loop?
+        </p>
+        <input type="text" placeholder="Enter your answer">
+        <br><br>
+        <button>
+        <onclick="submitExam()">Submit</button>
+        <p id="warning">Warnings:0</p>
+        </div>
+        <script>
+            let warning=0
+            function addWarning(msg)
+            {
+            warning++
+            document.getElementBy
+            Id("warning").innerHTML="warnings;"+ warnings+"|"+msg
+            if (warnings>=3)
+            {
+                alert("Exam terminated due to cheating");window.location.reload()
+            }
+            }
+
+        </script>
