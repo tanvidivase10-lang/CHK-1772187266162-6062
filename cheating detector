@@ -46,23 +46,35 @@
         <p id="question">
         Which of the following is an exit-controlled loop?
         </p>
-        <input type="text" placeholder="Enter your answer">
+       <input type="text" id="answer" placeholder="Enter your answer">
         <br><br>
-        <button>
-        <onclick="submitExam()">Submit</button>
-        <p id="warning">Warnings:0</p>
-        </div>
-        <script>
-            let warning=0
-            function addWarning(msg)
-            {
-            warning++
-            document.getElementBy
-            Id("warning").innerHTML="warnings;"+ warnings+"|"+msg
-            if (warnings>=3)
-            {
-                alert("Exam terminated due to cheating");window.location.reload()
-            }
-            }
+        <button onclick="submitExam()">Submit</button>
+        <p id="warnings">Warnings: 0</p>
+        <video id="video" autoplay></video>
+    </div>
 
-        </script>
+    <script>
+        let warnings = 0;
+        
+        function addWarnings(msg) {
+            warnings++;
+            document.getElementById("warnings").innerHTML = "Warnings: " + warnings + " | " + msg;
+            
+            if (warnings >= 3) {
+                alert("Exam terminated due to cheating");
+                window.location.reload();
+            }
+        }
+
+        // Tab switching detection
+        document.addEventListener("visibilitychange", function(e) {
+            if (document.hidden) {
+                addWarnings("Tab Switched detected");
+            }
+        });
+
+        // Copy prevention
+        document.addEventListener("copy", function(e) {
+            e.preventDefault();
+            addWarnings("Copy not allowed");
+});
