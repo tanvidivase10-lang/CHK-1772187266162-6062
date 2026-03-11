@@ -1,80 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset=":UTF-8">
-        <title>Online Exam Proctoring</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Online Exam Proctoring - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
 
-        <style>
+        .container {
+            margin-top: 50px;
+            background: white;
+            padding: 30px;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        #warnings {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: darkblue;
+        }
+
         
-        body{
-        font-family:Arial;
-        background:#f2f2f2;
-        text-align:center;
+
+        input[type="text"], input[type="password"] {
+            padding: 8px;
+            width: 60%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
         }
 
-        .container{
-        margin-top:50px;
-        background:white;
-        padding:30px;
-        width:60%;
-        margin-left:auto;
-        margin-right:auto;
-        border-radius:10px;
-        box-shadow:0 0 10px gray;
+        .login-form {
+            text-align: left;
+            max-width: 400px;
+            margin: 0 auto;
         }
 
-        #Warning{
-        color:red;
-        font-weight:bold;
+        .form-group {
+            margin-bottom: 15px;
         }
 
-        button{
-        padding:10px 20px;
-        font-size:16px;
-        background:blue;
-        color:white;
-        border:none;
-        border-radius:5px;
-        cursor:pointer;
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        
-        </style>
-        </head>
+
+        .error-message {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .exam-page {
+            display: none;
+        }
+
+        .login-page {
+            display: block;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
 <body>
-    <div class="container">
+    <!-- Login Page -->
+    <div id="loginPage" class="container login-page">
+        <h2>Online Exam System - Login</h2>
+        <div class="login-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <button onclick="login()">Login</button>
+            <p id="loginError" class="error-message"></p>
+        </div>
+        <p>Demo credentials: student / exam2024</p>
+    </div>
+
+    <!-- Exam Page -->
+    <div id="examPage" class="container exam-page">
         <h2>Online Exam System</h2>
-        <p id="question">
-        Which of the following is an exit-controlled loop?
-        </p>
-       <input type="text" id="answer" placeholder="Enter your answer">
+        <p><span id="studentName"></span></p>
+        <p id="question">Which of the following is an exit-controlled loop?</p>
+        <input type="text" id="answer" placeholder="Enter your answer">
         <br><br>
         <button onclick="submitExam()">Submit</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
         <p id="warnings">Warnings: 0</p>
         <video id="video" autoplay></video>
     </div>
 
     <script>
+        // Student credentials (in real application, this would be server-side)
+        const validCredentials = [
+            { username: 'student', password: 'exam2024', name: 'John Student' },
+            { username: 'svipe', password: 'svipe123', name: 'Test User' }
+        ];
+
+        let currentStudent = null;
         let warnings = 0;
-        
+
+        // Login function
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginError = document.getElementById('loginError');
+
+            // Simple validation
+            if (!username || !password) {
+                loginError.textContent = 'Please enter both username and password';
+                return;
+            }
+
+            // Check credentials
+            const student = validCredentials.find(cred => 
+                cred.username === username && cred.password === password
+            );
+
+            if (student) {
+                currentStudent = student;
+                // Switch to exam page
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('examPage').style.display = 'block';
+                document.getElementById('studentName').textContent = `Welcome, ${student.name}!`;
+                
+                // Reset warnings
+                warnings = 0;
+                document.getElementById("warnings").innerHTML = "Warnings: 0";
+                
+                // Initialize exam environment
+                initExamEnvironment();
+            } else {
+                loginError.textContent = 'Invalid username or password';
+            }
+        }
+
+        // Logout function
+        function logout() {
+            // Stop webcam stream
+            const video = document.getElementById('video');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+
+            // Clear form
+            document.getElementById('answer').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').textContent = '';
+            
+            // Reset warnings
+            warnings = 0;
+            
+            // Exit fullscreen if in it
+             if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+           
+            
+            // Switch to login page
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('examPage').style.display = 'none';
+            currentStudent = null;
+        }
+
         function addWarnings(msg) {
+            if (!currentStudent) return; // Only count warnings if logged in
+            
             warnings++;
             document.getElementById("warnings").innerHTML = "Warnings: " + warnings + " | " + msg;
             
             if (warnings >= 3) {
                 alert("Exam terminated due to cheating");
-                window.location.reload();
+                logout();
             }
         }
 
-        // Tab switching detection
-        document.addEventListener("visibilitychange", function(e) {
-            if (document.hidden) {
-                addWarnings("Tab Switched detected");
-            }
-        });
+        // Initialize exam environment (called after successful login)
+        function initExamEnvironment() {
+            // Tab switching detection
+            document.addEventListener("visibilitychange", function(e) {
+                if (document.hidden && currentStudent) {
+                    addWarnings("Tab Switched detected");
+                }
+            });
+
+            
+
+            // Attempt to enter fullscreen
+            enterFullscreen();
+        }
 
         // Copy prevention
         document.addEventListener("copy", function(e) {
-            e.preventDefault();
-            addWarnings("Copy not allowed");
-});
+            if (currentStudent) {
+                e.preventDefault();
+                addWarnings("Copy not allowed");
+            }
+        });
+
+        // Paste prevention
+        document.addEventListener("paste", function(e) {
+            if (currentStudent) {
+                e.preventDefault();
+                addWarnings("Paste not allowed");
+            }
+        });
+
+        // Right-click prevention
+        document.addEventListener("contextmenu", function(e) {
+            if (currentStudent) {
+                e.preventDefault();
+                addWarnings("Right-click not allowed");
+            }
+        });
+
+        // Keyboard shortcuts prevention (Ctrl+C, Ctrl+V, etc.)
+        document.addEventListener("keydown", function(e) {
+            if (currentStudent && (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'x')) {
+                e.preventDefault();
+                addWarnings("Keyboard shortcut not allowed");
+            }
+        });
+
+        // Detect when user exits fullscreen
+        document.addEventListener("fullscreenchange", function() {
+            if (currentStudent && !document.fullscreenElement) {
+                addWarnings("Exited fullscreen mode");
+            }
+        });
+
+        // Function to enter fullscreen
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            }
+        }
+
+        // Submit exam function
+        function submitExam() {
+            if (!currentStudent) {
+                alert("Please login first");
+                return;
+            }
+            
+            const answer = document.getElementById('answer').value;
+            if (answer.trim() === '') {
+                alert("Please enter an answer");
+                return;
+            }
+            
+            alert("Exam submitted successfully!");
+            // Here you would typically send the answer to a server
+            console.log("Answer submitted:", answer, "by:", currentStudent.name);
+        }
+
+        // Prevent back button during exam
+        window.addEventListener('popstate', function(e) {
+            if (currentStudent) {
+                e.preventDefault();
+                addWarnings("Navigation attempt detected");
+                history.pushState(null, null, location.href);
+            }
+        });
+        history.pushState(null, null, location.href);
+    </script>
+</body>
+</html>
